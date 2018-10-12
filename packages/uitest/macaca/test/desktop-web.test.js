@@ -1,0 +1,145 @@
+//https://github.com/macaca-sample/sample-nodejs
+const fs = require('fs');
+const {
+  assert
+} = require('chai');
+const path = require('path');
+const wd = require('macaca-wd');
+const pkg = require('../../package');
+
+var browser = process.env.browser || 'electron' || 'puppeteer';
+browser = browser.toLowerCase();
+
+describe('macaca-test/desktop-web.test.js', function () {
+  this.timeout(5 * 60 * 1000);
+
+  var driver = wd.promiseChainRemote({
+    host: 'localhost',
+    port: process.env.MACACA_SERVER_PORT || 3456
+  });
+
+  before(() => {
+    return driver
+      .init({
+        platformName: 'desktop',
+        browserName: browser,
+        userAgent: `Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0 Safari/537.36 Macaca Custom UserAgent`,
+        deviceScaleFactor: 2
+      })
+      .setWindowSize(800, 600);
+  });
+
+  // afterEach(function() {
+  //   return driver
+  //     .saveScreenshot('./')
+  //     .sleep(1000)
+  // });
+
+  after(() => {
+    return driver
+      .sleep(1000)
+      .quit()
+      .sleep(1000)
+      .then(() => {
+        const reporter = path.join(__dirname, '..', 'reports', 'index.html');
+        console.log(reporter);
+      });
+  });
+
+  describe('macaca desktop sample', function () {
+
+    it('#0 should be ok', function () {
+      const url = path.join(__dirname, './pages/desktop-sample.html');
+      return driver
+        .get(`file://${url}`)
+        .sleep(3000)
+        .setCookie({
+          name: pkg.name,
+          value: pkg.name
+        })
+        .allCookies()
+        .then(d => {
+          console.log(d);
+        })
+        .execute(`document.querySelector('#select').selectedIndex = 1`)
+        .sleep(1000)
+        .elementById('select')
+        /*
+        .getProperty('value')
+        .then(value => {
+          assert.ok(value);
+        })
+        */
+        .mouseEvent('#hover_text', 'mouseover')
+        .elementById('hover_text')
+        .getComputedCss('color')
+        .then(value => {
+          assert.ok(value);
+        })
+        // https://github.com/macacajs/macaca-electron#windowalert
+        .execute(`
+          var e = document.createElement('div');
+          e.id = 'alert_msg';
+          window.alert = function() {
+            e.innerHTML = JSON.stringify(arguments[0]);
+            document.body.appendChild(e);
+          };
+        `)
+        .elementById('alert_button')
+        .click()
+        .elementById('alert_msg')
+        .text()
+        .then(value => {
+          assert(value, 'this message is from alert');
+        })
+        .sleep(3000);
+    });
+
+    it('#1 should works with online pages', function () {
+      const initialURL = 'https://www.baidu.com';
+
+      return driver
+        .get(initialURL)
+        .sleep(3000)
+        .elementById('kw')
+        .sendKeys('macaca')
+        .sleep(3000)
+        .elementById('su')
+        .click()
+        .sleep(5000)
+        .source()
+        .then(html => {
+          assert.ok(html.includes('macaca'));
+        })
+        .hasElementByCss('#head > div.head_wrapper')
+        .then(hasHeadWrapper => {
+          assert.ok(hasHeadWrapper);
+        })
+        .elementByXPathOrNull('//*[@id="kw"]')
+        .sendKeys(' elementByXPath')
+        .sleep(3000)
+        .elementById('su')
+        .click()
+        .sleep(5000)
+        .saveScreenshot('pic1');
+    });
+
+    it('#2 should works with web', function () {
+      const initialURL = 'https://www.baidu.com';
+      return driver
+        .get(initialURL)
+        .sleep(3000)
+        .elementById('kw')
+        .sendKeys('Macaca')
+        .sleep(3000)
+        .elementById('su')
+        .click()
+        .sleep(5000)
+        .source()
+        .then(html => {
+          assert.ok(html.includes('macaca'));
+        })
+        .saveScreenshot('pic2');
+    });
+  });
+});
