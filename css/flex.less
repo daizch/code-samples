@@ -1,0 +1,33 @@
+.flex-wrap {
+  display: flex;
+  width: 80%;
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    li {
+      width: 33.3333%;
+      box-sizing: border-box;
+      padding: 10px;
+    }
+  }
+
+  .flex-auto-width-wrap {
+    flex: 1;
+  }
+
+  .flex-fix-width {
+    align-items: flex-end;
+    display: flex;
+  }
+
+  .inner-wrap {
+    display: flex;
+    .label-input {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+.inline-auto-wrap {
+  width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .float-wrap {
+    float: right;
+  }
+}
+
+.auto-float-wrap {
+  width: 100px;
+  white-space: nowrap;
+  .auto-wrap {
+    display: inline-block;
+  }
+
+  .float-wrap {
+    float: left;
+    margin-right: 10px;
+  }
+}
