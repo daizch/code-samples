@@ -1,3 +1,4 @@
+//requestIdleCallback
 function performanceTest(){
   let timing = performance.timing,
     readyStart = timing.fetchStart - timing.navigationStart,
