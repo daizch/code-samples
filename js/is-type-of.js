@@ -28,4 +28,16 @@ function typesFactory() {
   return fns
 }
 
+function getType(val) {
+  return Object.prototype.toString.call(val).slice(8,-1)
+}
+
+
+function typeOf(item) {
+  const reTypeOf = /(?:^\[object\s(.*?)\]$)/;
+  return Object.prototype.toString.call(item)
+    .replace(reTypeOf, '$1')
+    .toLowerCase();
+}
+
 module.exports = typesFactory()
